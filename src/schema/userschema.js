@@ -1,4 +1,5 @@
 const mongoose = require('mongoose');
+const bcrypt = require('bcrypt');
 
 const userSchema = new mongoose.Schema({
     name: {
@@ -23,25 +24,33 @@ const userSchema = new mongoose.Schema({
         enum: ['user', 'admin'],
         default: 'user'
     },
-  
-   phonenumber:{
-      type: String,
-      required: true,
-      unique: true,
-      match: /^\d{10}$/
-   },
-   imagepath:{
-
-       type: String,
-       default: 'default_user.jpg'  // default image for users who haven't uploaded one yet
- 
-   }
-
-},
-{
+    phonenumber: {
+        type: String,
+        required: true,
+        unique: true,
+        match: /^\d{10}$/
+    },
+    imagepath: {
+        type: String,
+        default: 'default_user.jpg'  // default image if not uploaded
+    }
+}, {
     timestamps: true
-}
-);
+});
+
+// ✅ Hash password before saving
+userSchema.pre('save', async function (next) {
+    const user = this;
+    if (user.isModified('password')) {
+        user.password = await bcrypt.hash(user.password, 10);
+    }
+    next();
+});
+
+// ✅ Add method to compare password (for login)
+userSchema.methods.comparePassword = async function (enteredPassword) {
+    return await bcrypt.compare(enteredPassword, this.password);
+};
 
 const userModel = mongoose.model('User', userSchema);
 
