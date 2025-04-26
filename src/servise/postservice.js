@@ -145,30 +145,36 @@ const updateposts = async (id, updatedPostData) => {
     }
  };
 
- const addorremovelike = async (postId, userId,) => {
+ const addorremovelike = async (postId, userId) => {
   try {
     const post = await getpostbyid(postId);
     if (!post) {
       throw { message: "Post not found", statusCode: 404 };
     }
-     const index = post.likes.indexOf(userId);
-     if (index === -1) {
-      post.likes.push(userId);
-    } else {  
+
+    // Yahan change hua hai:
+    const index = post.likes.findIndex((like) => like._id.toString() === userId.toString());
+
+    if (index === -1) {
+      // Agar userId nahi mila, to like karenge
+      post.likes.push({ _id: userId }); // Object format mein push karenge
+    } else {
+      // Agar userId mil gaya, to unlike karenge
       post.likes.splice(index, 1);
     }
+
     await post.save();
     return post;
-    } catch (error) {
-      console.error("Error in addorremovelike service:", error.message || error);
-      throw {
-        message: "Failed to add or remove like in service layer",
-        statusCode: 500,
-      };
-    }
 
+  } catch (error) {
+    console.error("Error in addorremovelike service:", error.message || error);
+    throw {
+      message: "Failed to add or remove like in service layer",
+      statusCode: 500,
+    };
+  }
+};
 
- }
 
  const addcomment = async (postId, commentData, userId) => {
   try {

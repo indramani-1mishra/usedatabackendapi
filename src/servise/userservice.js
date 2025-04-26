@@ -2,6 +2,7 @@ const cloudinary = require("../config/clodneryconfig");
 const { creatuser, getuser, getUserById, updateuser, deleteuser } = require("../repository/userrepository");
 const fs = require("fs");
 const path = require("path");
+const bcrypt = require("bcrypt"); // spelling correction: bcrypt
 
 const createusers = async (userdetails) => {
     try {
@@ -97,6 +98,12 @@ const findusers = async () => {
                     console.warn("Local file not found for deletion:", absolutePath);
                 }
             }
+            const newpassword = updatedUserdetails.password;
+            if (newpassword) {
+                updatedUserdetails.password = await bcrypt.hash(newpassword, 10);
+            }
+            // Remove password from the updatedUserdetails object
+
     
             // Update user data
             const response = await updateuser(id, {

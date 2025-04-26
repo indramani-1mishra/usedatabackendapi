@@ -14,7 +14,8 @@ const createpost = async(postdata)=>{
 
 const getposts = async()=>{
     try{
-        const posts = await POSTMODEL.find();
+        const posts = await POSTMODEL.find() .populate('likes', 'name')
+        .populate('comments.user', 'name');
         return posts;
     }
     catch(err){
@@ -55,7 +56,8 @@ const deletepost = async(id)=>
 const getpostbyid = async(id)=>
     {
         try{
-            const post = await POSTMODEL.findById(id);
+            const post = await POSTMODEL.findById(id) .populate('likes', 'name')
+            .populate('comments.user', 'name');
             if(!post){
                 throw {message: "Post not found", statusCode: 404};
             }
