@@ -2,12 +2,13 @@ const express = require('express');
 const { PORT } = require('./config/serverconfig');
 const connectdb = require('./config/databaseconfig');
 const apirouter = require('./routes/apirouter');
-
+const cookieParser = require("cookie-parser");
 const app = express();
 
 // ✅ Always add body parsers first
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+app.use(cookieParser()); // for parsing cookies
 
 // ✅ Then add your routes
 app.use("/api", apirouter);
